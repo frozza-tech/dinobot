@@ -1,0 +1,14 @@
+{
+	"name": "dino-bot",
+	"version": "1.0.0",
+	"description": "Bot de dino",
+	"main": "bot.js",
+	"author": "Filipe Frozza",
+	"dependencies": {
+		"discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+		"discord.js": "^11.4.2",
+		"express": "^4.16.4",
+		"mongodb": "^3.1.10",
+		"winston": "^3.1.0"
+	}
+}

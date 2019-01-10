@@ -1,0 +1,37 @@
+***ARK TEXT GAME***
+
+**Registro**
+-aprender a cadastrar pelo usuario do discord
+-criar o basico da estrutura ao se cadastrar
+-jogar o player no Ragnarok (mapa mais completo)
+-checkar status do player
+
+**Primeiros Passos**
+-criar as ações no jogo
+--vasculhar
+---pedra
+----picareta
+----machado
+---madeira
+----picareta
+----machado
+---dinossauro
+----observar
+----atacar
+-----arma
+------ao dormir
+-------tamar
+----se passivo
+-----tamar
+--criar
+---item
+--mover
+---regiao
+
+**Primeiro Dino**
+--Dilophosauro
+---adicionar status
+---adicionar requisito de tame
+--adicionar sela
+--adicionar opção de montar em dino
+
