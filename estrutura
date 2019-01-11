@@ -1,0 +1,58 @@
+***ESTRUTURA***
+
+{
+	users: {
+		$id: {
+			nome: "Frozza",
+			level: 0,
+			server: 1
+		}
+	},
+	servers: {
+		1: {
+			mapa: {
+				a1: {
+					wild: {
+						0: {
+							nome: "dilophosauro",
+							level: 4
+						}
+					},
+					tamed: {
+						0: {
+							nome: "dilophosauro",
+							level: 10,
+							did: $id,
+							dono: "Frozza"
+						}
+					},
+					player: [$id, $id, $id]
+				},
+				a2: {
+					wild: {
+						0: {
+							id: 0,
+							nome: "dilophosauro",
+							level: 2
+						},
+						1: {
+							id: 0,
+							nome: "dilophosauro",
+							level: 6
+						}
+					}
+				},
+				a3: {
+					wild: {
+
+					}
+				}
+			}
+		}
+	},
+	dinos: [
+		0: {
+			nome: "Dilophosauro"
+		}
+	]
+}
