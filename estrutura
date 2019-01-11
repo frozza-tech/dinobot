@@ -5,7 +5,16 @@
 		$id: {
 			nome: "Frozza",
 			level: 0,
-			server: 1
+			server: 1,
+			exp: 0,
+			next: 10,
+			map: "a1",
+			mochila: {
+				madeira: {
+					type: "recurso",
+					qtd: 15
+				}
+			}
 		}
 	},
 	servers: {
@@ -26,7 +35,17 @@
 							dono: "Frozza"
 						}
 					},
-					player: [$id, $id, $id]
+					player: [$id, $id, $id],
+					resource: [
+						{
+							nome: "Pedra"
+							descricao: "Uma pedra no chão",
+							type: "pedra",
+							tool: false,
+							quantidade: 5,
+							id: "pedra"
+						}
+					]
 				},
 				a2: {
 					wild: {
@@ -54,5 +73,69 @@
 		0: {
 			nome: "Dilophosauro"
 		}
-	]
+	],
+	resources: [
+		praia: [
+			{
+				pedra: {
+					nome: "Pedra"
+					descricao: "Uma pedra no chão",
+					type: "pedra",
+					tool: false,
+					quantidade: 5,
+					id: "pedra"
+				},
+				pedregulho: {
+					descricao: "Uma pedra grande",
+					type: "pedra",
+					tool: true,
+					quantidade: 15
+				},
+				pedrona: {
+					descricao: "Uma pedra enorme",
+					type: "pedra",
+					ferramenta: true
+					quantidade: 20
+				},
+				vareta: {
+					descricao: "Uma vareta no chão",
+					type: "madeira",
+					ferramenta: false,
+					quantidade: 5
+				},
+				coqueiro: {
+					descricao: "Uma pequena arvore de côco",
+					type: "madeira",
+					ferramenta: true,
+					quantidade: 10
+				},
+				arvore: {
+					descricao: "Uma arvore pequena comum",
+					type: "madeira",
+					ferramenta: true,
+					quantidade: 15
+				}
+			}
+		]
+	],
+	itens: {
+		picareta: {
+			nome: "Picareta",
+			dano: 5,
+			custo: {
+				madeira: 1,
+				pedra: 1,
+				palha: 10
+			},
+			tipo: "arma",
+			level: 1,
+			qualidade: 100,
+			id: picareta
+		},
+		madeira: {
+			nome: "Madeira",
+			tipo: recurso,
+			id: madeira
+		}
+	}
 }
