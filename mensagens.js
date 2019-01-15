@@ -108,6 +108,33 @@ exports.enviarChecagem = function(message, user, server){
 		});
 	};
 
+	chao = server.map[user.map].recurso.chao;
+	for(i in chao){
+		fields.push({
+			name: chao[i].nome,
+			value: "digite -coletar chao "+i,
+			inline: true
+		});
+	};
+
+	agua = server.map[user.map].recurso.agua;
+	for(i in agua){
+		fields.push({
+			name: agua[i].nome,
+			value: "digite -coletar agua "+i,
+			inline: true
+		});
+	};
+
+	parede = server.map[user.map].recurso.parede;
+	for(i in parede){
+		fields.push({
+			name: parede[i].nome,
+			value: "digite -coletar objeto "+i,
+			inline: true
+		});
+	};
+
     message.channel.send({
     	embed: {
             title: 'Você está no bioma '+server.map[user.map].bioma,

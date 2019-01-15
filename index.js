@@ -14,6 +14,5 @@ MongoClient.connect('mongodb://localhost:27017/admin',{ useNewUrlParser: true },
 	if (err) return console.log(err);
   	dinodb = mongo.db("admin"); // whatever your database name is
   	console.log("Mongo conectado");
-  	dinoex.iniciar(dinodb);
   	bot.iniciarBot(client, auth, dinoex, dinodb, mensagens, cronjob);
 });
