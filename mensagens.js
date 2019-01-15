@@ -62,17 +62,11 @@ exports.enviarChecagem = function(message, user, server){
             // description: '',
             fields: [{
 		        name: ":muscle: "+user.nome,
-		        value: ":large_orange_diamond: Nível "+user.level,
+		        value: ":large_orange_diamond: Nível "+user.level
 		      },
 		      {
 		        name: "Servidor",
-		        value: server.ilha + " " +server.nome+ " " +(user.server+1),
-		        inline: true
-		      },
-		      {
-		        name: "Local",
-		        value: user.map,
-		        inline: true
+		        value: server.ilha + " " +server.nome+ " " +(user.server+1)
 		      }
 		    ]
         },
@@ -80,6 +74,11 @@ exports.enviarChecagem = function(message, user, server){
     });
 
 	fields = [];
+
+	fields.push({
+		name: 'Você está na posição '+user.map,
+		value: '__'
+	});
 
 	wild = server.map[user.map].wild;
 	for(i in wild){
@@ -101,16 +100,17 @@ exports.enviarChecagem = function(message, user, server){
 
 	players = server.map[user.map].player;
 	for(i in players){
+		if(user.did == players[i].did) continue;
 		fields.push({
-			name: players[i].nome,
+			name: "(P) "+players[i].nome,
 			value: "Nível "+players[i].level,
 			inline: true
 		});
 	};
 
     message.channel.send({
-        embed: {
-            title: 'Na sua volta',
+    	embed: {
+            title: 'Você está no bioma '+server.map[user.map].bioma,
             color: 11534368,
             // description: '',
             fields: fields

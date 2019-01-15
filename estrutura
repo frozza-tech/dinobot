@@ -1,42 +1,44 @@
 ***ESTRUTURA***
 
-{
-	users: {
-		$id: {
-			nome: "Frozza",
-			level: 0,
-			server: 1,
-			exp: 0,
-			next: 10,
-			map: "a1",
-			mochila: {
-				madeira: {
-					type: "recurso",
-					qtd: 15
-				}
-			}
+users: [
+	{
+		nome: "Frozza",
+		level: 0,
+		server: 1,
+		exp: 0,
+		next: 10,
+		map: "a1",
+		mochila: {
+			madeira: 15
 		}
-	},
-	servers: {
-		1: {
-			mapa: {
-				a1: {
-					wild: {
-						0: {
-							nome: "dilophosauro",
-							level: 4
-						}
-					},
-					tamed: {
-						0: {
-							nome: "dilophosauro",
-							level: 10,
-							did: $id,
-							dono: "Frozza"
-						}
-					},
-					player: [$id, $id, $id],
-					resource: [
+	}
+];
+
+servers: [
+	{
+		mapa: {
+			a1: {
+				bioma: "praia",
+				wild: {
+					0: {
+						nome: "dilophosauro",
+						level: 4
+					}
+				},
+				tamed: {
+					0: {
+						nome: "dilophosauro",
+						level: 10,
+						did: $id,
+						dono: "Frozza"
+					}
+				},
+				player: [{
+					nome: "Frozza",
+					level: "3"
+				}],
+				recurso: {
+					chao: [
 						{
 							nome: "Pedra"
 							descricao: "Uma pedra no chão",
@@ -45,97 +47,144 @@
 							quantidade: 5,
 							id: "pedra"
 						}
-					]
-				},
-				a2: {
-					wild: {
-						0: {
-							id: 0,
-							nome: "dilophosauro",
-							level: 2
-						},
-						1: {
-							id: 0,
-							nome: "dilophosauro",
-							level: 6
-						}
-					}
-				},
-				a3: {
-					wild: {
+					],
+					agua: [
 
+					],
+					parede: [
+
+					]
+				}
+			},
+			a2: {
+				wild: {
+					0: {
+						id: 0,
+						nome: "dilophosauro",
+						level: 2
+					},
+					1: {
+						id: 0,
+						nome: "dilophosauro",
+						level: 6
 					}
 				}
-			}
-		}
-	},
-	dinos: [
-		0: {
-			nome: "Dilophosauro"
-		}
-	],
-	resources: [
-		praia: [
-			{
-				pedra: {
-					nome: "Pedra"
-					descricao: "Uma pedra no chão",
-					type: "pedra",
-					tool: false,
-					quantidade: 5,
-					id: "pedra"
-				},
-				pedregulho: {
-					descricao: "Uma pedra grande",
-					type: "pedra",
-					tool: true,
-					quantidade: 15
-				},
-				pedrona: {
-					descricao: "Uma pedra enorme",
-					type: "pedra",
-					ferramenta: true
-					quantidade: 20
-				},
-				vareta: {
-					descricao: "Uma vareta no chão",
-					type: "madeira",
-					ferramenta: false,
-					quantidade: 5
-				},
-				coqueiro: {
-					descricao: "Uma pequena arvore de côco",
-					type: "madeira",
-					ferramenta: true,
-					quantidade: 10
-				},
-				arvore: {
-					descricao: "Uma arvore pequena comum",
-					type: "madeira",
-					ferramenta: true,
-					quantidade: 15
+			},
+			a3: {
+				wild: {
+
 				}
 			}
-		]
-	],
-	itens: {
-		picareta: {
-			nome: "Picareta",
-			dano: 5,
-			custo: {
-				madeira: 1,
-				pedra: 1,
-				palha: 10
-			},
-			tipo: "arma",
-			level: 1,
-			qualidade: 100,
-			id: picareta
-		},
-		madeira: {
-			nome: "Madeira",
-			tipo: recurso,
-			id: madeira
 		}
 	}
-}
+];
+
+dinos: [
+	{
+		nome: "Dilophosauro",
+		bioma: "praia","planicie","montanha",
+		dano: 15,
+		vida: 50,
+		energia: 150,
+		fome: 100,
+		topor: 50,
+		dieta: "carnivoro"
+	}
+]
+
+itens: [
+	{
+		nome: "Picareta",
+		tipo: "ferramenta",
+		dano: 5,
+		custo: {
+			madeira: 1,
+			pedra: 1,
+			palha: 10
+		},
+		level: 1,
+		qualidade: 100,
+		id: picareta
+	},{
+		nome: "Lança",
+		tipo: "arma",
+		dano: 25,
+		custo: {
+
+		},
+		level: 1,
+		qualidade: 100,
+		id: picareta
+	},{
+		nome: "Madeira",
+		tipo: "recurso",
+		id: madeira
+	}
+];
+
+recursos: [
+	{
+		nome: "Pedra"
+		descricao: "Uma pedra no chão",
+		tipo: "pedra",
+		tool: false,
+		quantidade: 5,
+		id: "pedra",
+		bioma: ["praia","planicie"],
+		localidade: "chao"
+	},{
+		nome: "Vareta",
+		descricao: "Uma vareta no chão",
+		tipo: "madeira",
+		tool: false,
+		quantidade: 5,
+		id: "vareta",
+		bioma: ["praia","planicie"],
+		localidade: "chao"
+	},{
+		nome: "Folha"
+		descricao: "Uma folha de árvore no chão",
+		tipo: "madeira",
+		tool: false,
+		quantidade: 5,
+		id: "folha",
+		bioma: ["praia","planicie"],
+		localidade: "chao"
+	},{
+		nome: "Pedregulho",
+		descricao: "Uma pedra grande",
+		tipo: "pedra",
+		tool: true,
+		quantidade: 15,
+		id: "pedragulho",
+		bioma: ["praia","planicie","montanha"],
+		localidade: "parede"
+	},{
+		nome: "Pedrona",
+		descricao: "Uma pedra enorme",
+		tipo: "pedra",
+		ferramenta: true
+		quantidade: 20,
+		id: "pedrona",
+		bioma: ["praia","planicie","montanha"],
+		localidade: "parede"
+	},{
+		nome: "Coqueiro"
+		descricao: "Uma pequena arvore de côco",
+		tipo: "madeira",
+		ferramenta: true,
+		quantidade: 10,
+		id: "coqueiro",
+		bioma: ["praia"],
+		localidade: "parede"
+	},{
+		nome: "Árvore",
+		descricao: "Uma arvore pequena comum",
+		tipo: "madeira",
+		ferramenta: true,
+		quantidade: 15,
+		id: "arvore",
+		bioma: ["praia","planicie","montanha"],
+		localidade: "parede"
+	}
+];
