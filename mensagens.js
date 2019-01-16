@@ -62,7 +62,7 @@ exports.enviarChecagem = function(message, user, server){
             // description: '',
             fields: [{
 		        name: ":muscle: "+user.nome,
-		        value: ":large_orange_diamond: Nível "+user.level
+		        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
 		      },
 		      {
 		        name: "Servidor",
@@ -84,7 +84,7 @@ exports.enviarChecagem = function(message, user, server){
 	for(i in wild){
 		fields.push({
 			name: wild[i].nome,
-			value: "Nível: "+wild[i].level,
+			value: "Dino nv "+wild[i].level,
 			inline: true
 		});
 	}
@@ -93,7 +93,7 @@ exports.enviarChecagem = function(message, user, server){
 	for(i in tamed){
 		fields.push({
 			name: tamed[i].nome+" do "+tamed[i].dono,
-			value: "Nível: "+tamed[i].level,
+			value: "Dino nv "+tamed[i].level,
 			inline: true
 		});
 	};
@@ -102,35 +102,17 @@ exports.enviarChecagem = function(message, user, server){
 	for(i in players){
 		if(user.did == players[i].did) continue;
 		fields.push({
-			name: "(P) "+players[i].nome,
-			value: "Nível "+players[i].level,
+			name: players[i].nome,
+			value: "Player nv "+players[i].level,
 			inline: true
 		});
 	};
 
-	chao = server.map[user.map].recurso.chao;
-	for(i in chao){
+	recurso = server.map[user.map].recurso;
+	for(i in recurso){
 		fields.push({
-			name: chao[i].nome,
-			value: "digite -coletar chao "+i,
-			inline: true
-		});
-	};
-
-	agua = server.map[user.map].recurso.agua;
-	for(i in agua){
-		fields.push({
-			name: agua[i].nome,
-			value: "digite -coletar agua "+i,
-			inline: true
-		});
-	};
-
-	parede = server.map[user.map].recurso.parede;
-	for(i in parede){
-		fields.push({
-			name: parede[i].nome,
-			value: "digite -coletar objeto "+i,
+			name: recurso[i].nome,
+			value: "digite -coletar "+i,
 			inline: true
 		});
 	};

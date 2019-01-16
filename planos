@@ -8,13 +8,14 @@
 
 **Primeiros Passos**
 -criar as ações no jogo
---vasculhar
+--checar
 ---pedra
 ----picareta
 ----machado
 ---madeira
 ----picareta
 ----machado
+db.collection.update({id: "pedra"},{$unset: {bioma: "praia"}});
 ---dinossauro
 ----observar
 ----atacar

@@ -8,6 +8,12 @@ users: [
 		exp: 0,
 		next: 10,
 		map: "a1",
+		dano: 20,
+		vida: 100,
+		energia: 100,
+		fome: 100,
+		topor: 100,
+		velocidade: 100,
 		mochila: {
 			madeira: 15
 		}
@@ -19,42 +25,31 @@ servers: [
 		mapa: {
 			a1: {
 				bioma: "praia",
-				wild: {
-					0: {
+				wild: [
+					{
 						nome: "dilophosauro",
 						level: 4
 					}
-				},
-				tamed: {
-					0: {
+				],
+				tamed: [
+					{
 						nome: "dilophosauro",
 						level: 10,
-						did: $id,
+						did: 1,
 						dono: "Frozza"
 					}
-				},
-				player: [{
-					nome: "Frozza",
-					level: "3"
-				}],
+				],
 				recurso: {
-					chao: [
-						{
-							nome: "Pedra"
-							descricao: "Uma pedra no chão",
-							type: "pedra",
-							tool: false,
-							quantidade: 5,
-							id: "pedra"
-						}
-					],
-					agua: [
-
-					],
-					parede: [
-
-					]
-				}
+					{
+						nome: "Pedra",
+						descricao: "Uma pedra no chão",
+						type: "pedra",
+						tool: false,
+						quantidade: 5,
+						id: "pedra",
+						localidade: "chao",
+						bioma: ["praia", "planicie", "montanha"]
+					}
 			},
 			a2: {
 				wild: {
@@ -82,13 +77,37 @@ servers: [
 dinos: [
 	{
 		nome: "Dilophosauro",
-		bioma: "praia","planicie","montanha",
+		bioma: ["praia","planicie","montanha"],
 		dano: 15,
 		vida: 50,
 		energia: 150,
 		fome: 100,
 		topor: 50,
-		dieta: "carnivoro"
+		velocidade: 100,
+		dieta: "carnivoro",
+		id: "dilophosauro"
+	},{
+		nome: "Dodo",
+		bioma: ["praia","planicie"],
+		dano: 5,
+		vida: 30,
+		energia: 70,
+		fome: 70,
+		topor: 30,
+		velocidade: 20,
+		dieta: "herbivoro",
+		id: "dodo"
+	},{
+		nome: "Trike",
+		bioma: ["praia","planicie"],
+		dano: 20,
+		vida: 150,
+		energia: 250,
+		fome: 200,
+		topor: 150,
+		velocidade: 70,
+		dieta: "herbivoro",
+		id: "trike"
 	}
 ]
 

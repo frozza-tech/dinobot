@@ -16,7 +16,7 @@ exports.iniciar = function(dinodb, mensagens, message){
 			};
 			dinodb.collection('servers').updateOne(query, novo, function(err, result){
 				if(err) throw err;
-				console.log(result);
+				// console.log(result);
 				console.log('salvo');
 			});
 		}else{
@@ -57,7 +57,7 @@ exports.checar = function(dinodb, usuario, mensagens, message){
 	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
 		if(err) throw err;
 		if(user == null) return err;
-		console.log(user);
+		console.log(user.nome, "está fazendo checagem");
 		if(!user.map){
 			mensagens.enviarGenerico(message,"Calma","Você deve iniciar seu personagem com o comando *iniciar*");
 			return;
@@ -66,7 +66,7 @@ exports.checar = function(dinodb, usuario, mensagens, message){
 		dinodb.collection('servers').findOne({sid: 0}, function(err, server){
 			if(err) throw err;
 			if(server == null) return err;
-			console.log(server);
+			// console.log(server);
 
 			mensagens.enviarChecagem(message, user, server);
 		});
@@ -79,9 +79,11 @@ exports.spawnar = function(dinodb){
 		if(server == null) return err;
 		console.log("Rotina de spawn", '[' + Date.now() + ']');
 
+		// teste.recurso.chao.;
+
 		map = server.map;
 		for(m in map){
-			if(map[m].recurso.chao.length < 2){
+			if(map[m].recurso.filter(function(v){return v.localidade=="chao";}).length < 2){
 				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "chao"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
@@ -90,13 +92,13 @@ exports.spawnar = function(dinodb){
 					random = ~~(Math.random()*chao.length);	
 					// server.map[m].recurso.chao.push(chao[random]);
 					novo = {};
-					novo["map."+m+".recurso.chao"] = chao[random];
+					novo["map."+m+".recurso"] = chao[random];
 					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
-			if(map[m].recurso.agua.length < 2){
+			if(map[m].recurso.filter(function(v){return v.localidade=="agua";}).length < 2){
 				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "agua"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
@@ -104,13 +106,13 @@ exports.spawnar = function(dinodb){
 					agua = result;
 					random = ~~(Math.random()*agua.length);	
 					novo = {};
-					novo["map."+m+".recurso.agua"] = agua[random];
+					novo["map."+m+".recurso"] = agua[random];
 					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
-			if(map[m].recurso.parede.length < 3){
+			if(map[m].recurso.filter(function(v){return v.localidade=="parede";}).length < 3){
 				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "parede"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
@@ -118,7 +120,29 @@ exports.spawnar = function(dinodb){
 					parede = result;
 					random = ~~(Math.random()*parede.length);	
 					novo = {};
-					novo["map."+m+".recurso.parede"] = parede[random];
+					novo["map."+m+".recurso"] = parede[random];
+					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
+						if(err) throw err;
+					});
+				});
+			}
+
+			if(map[m].wild.length < 4){
+				dinodb.collection('dinos').find({bioma: map[m].bioma}).toArray(function(err, result){
+					if(err) throw err;
+					if(result.length==0) return;
+
+					dino = result;
+					random = ~~(Math.random()*dino.length);	
+					novo = {};
+					dino[random].level = ~~(Math.random()*100);
+					dino[random].dano+=~~(dino[random].dano*0.02*dino[random].level);
+					dino[random].vida+=~~(dino[random].vida*0.03*dino[random].level);
+					dino[random].energia+=~~(dino[random].energia*0.03*dino[random].level);
+					dino[random].fome+=~~(dino[random].fome*0.03*dino[random].level);
+					dino[random].topor+=~~(dino[random].topor*0.02*dino[random].level);
+					dino[random].velocidade+=~~(dino[random].velocidade*0.02*dino[random].level);
+					novo["map."+m+".wild"] = dino[random];
 					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
 						if(err) throw err;
 					});
