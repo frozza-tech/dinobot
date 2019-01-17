@@ -68,89 +68,178 @@ exports.checar = function(dinodb, usuario, mensagens, message){
 			if(server == null) return err;
 			// console.log(server);
 
-			mensagens.enviarChecagem(message, user, server);
+			dinodb.collection('regioes').findOne({sid: 0, rid: user.map}, function(err, regiao){
+				dinodb.collection('players').find({sid: 0, map: user.map}).toArray(function(err, players){
+					dinodb.collection('selvagens').find({sid: 0, rid: user.map}).toArray(function(err, selvagens){
+						dinodb.collection('recursos_regiao').find({sid: 0, rid: user.map}).toArray(function(err, recursos){
+							mensagens.enviarChecagem(message, user, server, regiao, players, selvagens, recursos);
+						});
+					});
+				})
+			});
 		});
 	});
 }
 
 exports.spawnar = function(dinodb){
-	dinodb.collection('servers').findOne({sid: 0}, function(err, server){
-		if(err) throw err;
-		if(server == null) return err;
-		console.log("Rotina de spawn", '[' + Date.now() + ']');
+	dinodb.collection('regioes').find({sid: 0}).forEach(function(regiao){
+		// if(err) throw err;
+		if(regiao == null) return err;
+		console.log("Rotina de spawn "+regiao.rid, '[' + Date.now() + ']');
 
-		// teste.recurso.chao.;
-
-		map = server.map;
-		for(m in map){
-			if(map[m].recurso.filter(function(v){return v.localidade=="chao";}).length < 2){
-				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "chao"}).toArray(function(err, result){
+		dinodb.collection('recursos_regiao').countDocuments({rid: regiao.rid, localidade: "chao"}, function(err, qtd){
+			if(err) throw err;
+			if(qtd<2){
+				dinodb.collection('recursos').find({bioma: regiao.bioma, localidade: "chao"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
 
 					chao = result;
 					random = ~~(Math.random()*chao.length);	
-					// server.map[m].recurso.chao.push(chao[random]);
-					novo = {};
-					novo["map."+m+".recurso"] = chao[random];
-					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
+					// server.regiao.recurso.chao.push(chao[random]);
+					novo = chao[random];
+					novo.sid = 0;
+					novo.rid = regiao.rid;
+					delete novo._id;
+					dinodb.collection('recursos_regiao').insertOne(novo,function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
-			if(map[m].recurso.filter(function(v){return v.localidade=="agua";}).length < 2){
-				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "agua"}).toArray(function(err, result){
+		});
+
+		dinodb.collection('recursos_regiao').countDocuments({rid: regiao.rid, localidade: "agua"}, function(err, qtd){
+			if(err) throw err;
+			if(qtd<2){
+				dinodb.collection('recursos').find({bioma: regiao.bioma, localidade: "agua"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
 
 					agua = result;
 					random = ~~(Math.random()*agua.length);	
-					novo = {};
-					novo["map."+m+".recurso"] = agua[random];
-					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
+					// server.regiao.recurso.agua.push(agua[random]);
+					novo = agua[random];
+					novo.sid = 0;
+					novo.rid = regiao.rid;
+					delete novo._id;
+					dinodb.collection('recursos_regiao').insertOne(novo,function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
-			if(map[m].recurso.filter(function(v){return v.localidade=="parede";}).length < 3){
-				dinodb.collection('recursos').find({bioma: map[m].bioma, localidade: "parede"}).toArray(function(err, result){
+		});
+
+		dinodb.collection('recursos_regiao').countDocuments({rid: regiao.rid, localidade: "parede"}, function(err, qtd){
+			if(err) throw err;
+			if(qtd<2){
+				dinodb.collection('recursos').find({bioma: regiao.bioma, localidade: "parede"}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
 
 					parede = result;
 					random = ~~(Math.random()*parede.length);	
-					novo = {};
-					novo["map."+m+".recurso"] = parede[random];
-					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
+					// server.regiao.recurso.parede.push(parede[random]);
+					novo = parede[random];
+					novo.sid = 0;
+					novo.rid = regiao.rid;
+					delete novo._id;
+					dinodb.collection('recursos_regiao').insertOne(novo,function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
+		});
 
-			if(map[m].wild.length < 4){
-				dinodb.collection('dinos').find({bioma: map[m].bioma}).toArray(function(err, result){
+		dinodb.collection('selvagens').countDocuments({rid: regiao.rid}, function(err, qtd){
+			if(err) throw err;
+			if(qtd<4){
+				dinodb.collection('dinos').find({bioma: regiao.bioma}).toArray(function(err, result){
 					if(err) throw err;
 					if(result.length==0) return;
 
 					dino = result;
 					random = ~~(Math.random()*dino.length);	
 					novo = {};
-					dino[random].level = ~~(Math.random()*100);
+					dino[random].level = ~~(Math.random()*regiao.maxlevel);
 					dino[random].dano+=~~(dino[random].dano*0.02*dino[random].level);
 					dino[random].vida+=~~(dino[random].vida*0.03*dino[random].level);
 					dino[random].energia+=~~(dino[random].energia*0.03*dino[random].level);
 					dino[random].fome+=~~(dino[random].fome*0.03*dino[random].level);
 					dino[random].topor+=~~(dino[random].topor*0.02*dino[random].level);
 					dino[random].velocidade+=~~(dino[random].velocidade*0.02*dino[random].level);
-					novo["map."+m+".wild"] = dino[random];
-					dinodb.collection('servers').updateOne({sid: 0},{$push: novo},function(err, result){
+					novo = dino[random];
+					novo.sid = 0;
+					novo.rid = regiao.rid;
+					delete novo._id;
+					dinodb.collection('selvagens').insertOne(novo,function(err, result){
 						if(err) throw err;
 					});
 				});
 			}
-		}
-		
+		});
 
 		console.log("spawn finalizado", '[' + Date.now() + ']');
 	});
-}
+};
+
+exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
+	console.log(usuario.username, "tentando coletar recurso com id "+recurso);
+
+	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+		if(err) throw err;
+		if(user == null) return err;
+		if(!user.map){
+			mensagens.enviarGenerico(message,"Calma","Você deve iniciar seu personagem com o comando *iniciar*");
+			return;
+		}
+
+		query = {sid: 0, rid: user.map, id: recurso};
+		dinodb.collection('recursos_regiao').findOne(query, function(err, recurso){
+			if(err) throw err;
+			if(recurso == null){
+				mensagens.enviarGenerico(message, "Opa", "O id de recurso não está presente na sua região");
+			} else {
+				if(recurso.tool){
+					mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta correta");
+					return;
+				}else{
+					item = {
+						quantidade: recurso.quantidade,
+						id: recurso.tipo,
+						dono: user.did
+					};
+				}
+			// console.log(server);
+				dinodb.collection('recursos_regiao').deleteOne(query, function(err, obj){
+					if(obj.result.n>0){
+						console.log(user.nome, "removeu "+recurso.nome+" do "+recurso.rid);	
+					}else{
+						console.log("não removeu recurso do banco");
+					}
+
+					dinodb.collection('pertences').countDocuments({id: recurso.tipo, dono: user.did}, function(err, qtd){
+						if(qtd == 0){
+							dinodb.collection('pertences').insertOne(item, function(err, res){
+
+							});
+						}else{
+							q = {id: recurso.tipo, dono: user.did};
+							novo = {$inc: {quantidade: recurso.quantidade}};
+							dinodb.collection('pertences').updateOne(q,novo, function(err, res){
+
+							});
+						}
+						dinodb.collection('users').updateOne({did: user.did},{$inc: {exp: ~~(recurso.quantidade/5)}},function(err, res){
+							dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+								if(err) throw err;
+								if(user == null) return err;
+								
+								mensagens.enviarColeta(message, user, recurso);
+							});
+						});
+					});
+				});
+			}
+		});
+	});
+};

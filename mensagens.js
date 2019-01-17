@@ -54,7 +54,7 @@ exports.enviarGenerico = function(message, title, texto){
     });
 };
 
-exports.enviarChecagem = function(message, user, server){
+exports.enviarChecagem = function(message, user, server, regiao, players, selvagens, recursos){
 	message.channel.send({
         embed: {
             title: '**Dino Ex ainda em desenvolvimento**',
@@ -77,28 +77,26 @@ exports.enviarChecagem = function(message, user, server){
 
 	fields.push({
 		name: 'Você está na posição '+user.map,
-		value: '__'
+		value: '___'
 	});
 
-	wild = server.map[user.map].wild;
-	for(i in wild){
+	for(i in selvagens){
 		fields.push({
-			name: wild[i].nome,
-			value: "Dino nv "+wild[i].level,
+			name: selvagens[i].nome,
+			value: selvagens[i].familia+" nv "+selvagens[i].level+"\ndigite $atacar "+selvagens[i].id+selvagens[i].level,
 			inline: true
 		});
 	}
 
-	tamed = server.map[user.map].tamed;
-	for(i in tamed){
-		fields.push({
-			name: tamed[i].nome+" do "+tamed[i].dono,
-			value: "Dino nv "+tamed[i].level,
-			inline: true
-		});
-	};
+	// tamed = regiao.tamed;
+	// for(i in tamed){
+	// 	fields.push({
+	// 		name: tamed[i].nome+" do "+tamed[i].dono,
+	// 		value: tamed[i].familia+" nv "+tamed[i].level,
+	// 		inline: true
+	// 	});
+	// };
 
-	players = server.map[user.map].player;
 	for(i in players){
 		if(user.did == players[i].did) continue;
 		fields.push({
@@ -108,21 +106,49 @@ exports.enviarChecagem = function(message, user, server){
 		});
 	};
 
-	recurso = server.map[user.map].recurso;
-	for(i in recurso){
+	for(i in recursos){
 		fields.push({
-			name: recurso[i].nome,
-			value: "digite -coletar "+i,
+			name: recursos[i].nome,
+			value: "digite $coletar "+recursos[i].id,
 			inline: true
 		});
 	};
 
     message.channel.send({
     	embed: {
-            title: 'Você está no bioma '+server.map[user.map].bioma,
+            title: 'Você está no bioma '+regiao.bioma,
             color: 11534368,
             // description: '',
             fields: fields
+        },
+        content: ''
+    });
+};
+
+exports.enviarColeta = function(message, user, recurso){
+	message.channel.send({
+        embed: {
+            title: '**Dino Ex ainda em desenvolvimento**',
+            color: 11534368,
+            // description: '',
+            fields: [{
+		        name: ":muscle: "+user.nome,
+		        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
+		      }
+		    ]
+        },
+        content: ''
+    });
+
+    message.channel.send({
+    	embed: {
+            title: '',
+            color: 11534368,
+            // description: '',
+            fields: [{
+            	name: "Você coletou "+recurso.quantidade+" "+recurso.tipo,
+            	value: "Você recebeu "+~~(recurso.quantidade/5)+" de xp"
+            }]
         },
         content: ''
     });

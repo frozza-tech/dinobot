@@ -14,9 +14,13 @@ users: [
 		fome: 100,
 		topor: 100,
 		velocidade: 100,
-		mochila: {
-			madeira: 15
-		}
+	}
+];
+
+mochila: [
+	{
+		id: madeira
+		quantidade: 15
 	}
 ];
 
@@ -123,7 +127,7 @@ itens: [
 		},
 		level: 1,
 		qualidade: 100,
-		id: picareta
+		id: "picareta"
 	},{
 		nome: "Lança",
 		tipo: "arma",
@@ -133,11 +137,19 @@ itens: [
 		},
 		level: 1,
 		qualidade: 100,
-		id: picareta
+		id: "lanca"
 	},{
 		nome: "Madeira",
 		tipo: "recurso",
-		id: madeira
+		id: "madeira"
+	},{
+		nome: "Pedra",
+		tipo: "recurso",
+		id: "pedra"
+	},{
+		nome: "Folha",
+		tipo: "recurso",
+		id: "folha"
 	}
 ];
 

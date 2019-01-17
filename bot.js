@@ -44,6 +44,15 @@ exports.iniciarBot = function(client, auth, dinoex, dinodb, mensagens, cronjob){
 	            	}
 
 	            	break;
+
+	            case 'coletar':
+	            	if(args.length > 0){
+	            		dinoex.coletar(dinodb, usuario, args[0], mensagens, message);
+	            	}else{
+	            		mensagens.enviarGenerico(message, "Opa", "Você deve especificar o que pretende coletar!");
+	            	}
+
+	            	break;
 	        }
 	    }
 	});
