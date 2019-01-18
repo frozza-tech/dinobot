@@ -10,9 +10,13 @@ users: [
 		map: "a1",
 		dano: 20,
 		vida: 100,
+		vidamax: 100,
 		energia: 100,
+		energiamax: 100,
 		fome: 100,
+		fomemax: 100,
 		topor: 100,
+		topormax: 100,
 		velocidade: 100,
 	}
 ];

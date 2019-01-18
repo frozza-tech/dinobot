@@ -53,6 +53,11 @@ exports.iniciarBot = function(client, auth, dinoex, dinodb, mensagens, cronjob){
 	            	}
 
 	            	break;
+
+	            case 'perfil':
+	            	dinoex.perfil(dinodb, usuario, mensagens, message);
+	            	
+	            	break;
 	        }
 	    }
 	});

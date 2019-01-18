@@ -83,7 +83,7 @@ exports.enviarChecagem = function(message, user, server, regiao, players, selvag
 	for(i in selvagens){
 		fields.push({
 			name: selvagens[i].nome,
-			value: selvagens[i].familia+" nv "+selvagens[i].level+"\ndigite $atacar "+selvagens[i].id+selvagens[i].level,
+			value: selvagens[i].familia+" nv "+selvagens[i].level+"\nid:"+selvagens[i].id+selvagens[i].level,
 			inline: true
 		});
 	}
@@ -109,10 +109,24 @@ exports.enviarChecagem = function(message, user, server, regiao, players, selvag
 	for(i in recursos){
 		fields.push({
 			name: recursos[i].nome,
-			value: "digite $coletar "+recursos[i].id,
+			value: "Quantidade: "+recursos[i].quantidade+"\nid: "+recursos[i].id,
 			inline: true
 		});
 	};
+
+	while(fields.length%3!=1){
+		fields.push({
+			name: "** **",
+			value: "** **",
+			inline: true
+		});
+	}
+
+	fields.push({
+		name: "Está perdido? Aqui estão alguns comandos (use $ajuda para saber mais)",
+		value: "$perfil $checar $ver $coletar $atacar $mover"
+	});
+
 
     message.channel.send({
     	embed: {
@@ -134,21 +148,92 @@ exports.enviarColeta = function(message, user, recurso){
             fields: [{
 		        name: ":muscle: "+user.nome,
 		        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
-		      }
-		    ]
+		      },{
+            	name: "Você coletou "+recurso.quantidade+" "+recurso.tipo+(recurso.quantidade>1&&recurso.tipo.substr(-1).match(/(a|e|o)/)?"s":""),
+            	value: "E recebeu "+~~(recurso.quantidade/5)+" de xp"
+            }]
+        },
+        content: ''
+    });
+};
+
+exports.enviarPerfil = function(message, user, server, itens){
+	fields = [{
+        name: ":muscle: "+user.nome,
+        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
+      },
+      {
+	        name: "Servidor",
+	        value: server.ilha + " " +server.nome+ " " +(user.server+1)
+      	},{
+	      	name: "Força",
+	      	value: user.dano,
+	      	inline: true
+      	},{
+	      	name: "Vida",
+	      	value: user.vida+"/"+user.vidamax,
+	      	inline: true
+      	},{
+	      	name: "Energia",
+	      	value: user.energia+"/"+user.energiamax,
+	      	inline: true
+      	},{
+	      	name: "Fome",
+	      	value: user.fome+"/"+user.fomemax,
+	      	inline: true
+      	},{
+      		name: "Velocidade",
+      		value: user.velocidade,
+      		inline: true
+      	},{
+      		name: "** **",
+      		value: '** **',
+      		inline: true
+      	}
+    ];
+    if(user.pontos>0){
+    	fields.push({
+    		name: "Você tem "+user.pontos+" ponto"+(user.pontos>1?"s":"")+" de atributo para gastar",
+    		value: "Use o comando $atribuir (quantidade) (atributo)"
+    	});
+    }
+	message.channel.send({
+        embed: {
+            title: '**Dino Ex ainda em desenvolvimento**',
+            color: 11534368,
+            // description: '',
+            fields: fields
         },
         content: ''
     });
 
+    fields = [];
+
+    fields.push({
+    	name: "Inventário: ",
+    	value: "_______________"
+    });
+
+    for(i in itens){
+    	fields.push({
+    		name: itens[i].quantidade+"x "+itens[i].nome+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""),
+    		value: "** **"
+    	});
+    }
+
+    if(itens.length == 0){
+    	fields.push({
+    		name: "Seu inventário está vazio",
+    		value: "Vá coletar algo"
+    	});
+    }
+
     message.channel.send({
     	embed: {
-            title: '',
+            title: "** **",
             color: 11534368,
             // description: '',
-            fields: [{
-            	name: "Você coletou "+recurso.quantidade+" "+recurso.tipo,
-            	value: "Você recebeu "+~~(recurso.quantidade/5)+" de xp"
-            }]
+            fields: fields
         },
         content: ''
     });

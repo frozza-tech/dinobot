@@ -206,7 +206,8 @@ exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
 					item = {
 						quantidade: recurso.quantidade,
 						id: recurso.tipo,
-						dono: user.did
+						dono: user.did,
+						nome: recurso.material
 					};
 				}
 			// console.log(server);
@@ -229,17 +230,36 @@ exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
 
 							});
 						}
-						dinodb.collection('users').updateOne({did: user.did},{$inc: {exp: ~~(recurso.quantidade/5)}},function(err, res){
-							dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
-								if(err) throw err;
-								if(user == null) return err;
-								
-								mensagens.enviarColeta(message, user, recurso);
-							});
+						user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
+						dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
+							mensagens.enviarColeta(message, user, recurso);
 						});
 					});
 				});
 			}
 		});
 	});
+};
+
+exports.perfil = function(dinodb, usuario, mensagens, message){
+	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+		dinodb.collection('pertences').find({dono: usuario.id}).toArray(function(err, itens){
+			dinodb.collection('servers').findOne({sid: user.server}, function(err, server){
+				mensagens.enviarPerfil(message, user, server, itens);
+			});
+		});
+	});
+};
+
+exports.aumentarExp = function(dinodb, user, exp, mensagens, message){
+	user.exp += exp;
+	if(user.exp>=user.next){
+		user.exp-=user.next;
+		user.next=user.next+(5*Math.pow(user.level,2));
+		user.level+=1;
+		user.pontos+=1;
+		console.log(user.nome+" upou para o nível "+user.level);
+		mensagens.enviarGenerico(message, "Parabéns!","Você upou para o nível "+user.level);
+	}
+	return user;
 };
