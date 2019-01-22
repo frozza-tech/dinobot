@@ -130,6 +130,16 @@ itens: [
 			palha: 10
 		},
 		level: 1,
+		exp: 2,
+		farm: ["pedra","madeira","carne"],
+		farmqtd: {
+			pedra: 10,
+			sillex: 30,
+			madeira: 10,
+			folha: 30,
+			couro: 10,
+			carne: 30
+		},
 		qualidade: 100,
 		id: "picareta"
 	},{
@@ -137,9 +147,17 @@ itens: [
 		tipo: "arma",
 		dano: 25,
 		custo: {
-
+			madeira: 8,
+			fibra: 12,
+			sillex: 2
 		},
 		level: 1,
+		exp: 2,
+		farm: ["carne"],
+		farmqtd: {
+			couro: 10,
+			carne: 30
+		},
 		qualidade: 100,
 		id: "lanca"
 	},{
@@ -162,6 +180,7 @@ recursos: [
 		nome: "Pedra"
 		descricao: "Uma pedra no chão",
 		tipo: "pedra",
+		farm: ["pedra"] 
 		tool: false,
 		quantidade: 5,
 		id: "pedra",
@@ -171,6 +190,7 @@ recursos: [
 		nome: "Vareta",
 		descricao: "Uma vareta no chão",
 		tipo: "madeira",
+		farm: ["madeira"],
 		tool: false,
 		quantidade: 5,
 		id: "vareta",
@@ -179,7 +199,8 @@ recursos: [
 	},{
 		nome: "Folha"
 		descricao: "Uma folha de árvore no chão",
-		tipo: "madeira",
+		tipo: "folha",
+		farm: ["folha"]
 		tool: false,
 		quantidade: 5,
 		id: "folha",
@@ -189,6 +210,8 @@ recursos: [
 		nome: "Pedregulho",
 		descricao: "Uma pedra grande",
 		tipo: "pedra",
+		farm: ["pedra", "sillex"],
+		raro: ["metal"],
 		tool: true,
 		quantidade: 15,
 		id: "pedragulho",
@@ -198,6 +221,8 @@ recursos: [
 		nome: "Pedrona",
 		descricao: "Uma pedra enorme",
 		tipo: "pedra",
+		farm: ["pedra", "sillex"],
+		raro: ["metal"],
 		ferramenta: true
 		quantidade: 20,
 		id: "pedrona",
@@ -207,6 +232,7 @@ recursos: [
 		nome: "Coqueiro"
 		descricao: "Uma pequena arvore de côco",
 		tipo: "madeira",
+		farm: ["madeira", "folha"],
 		ferramenta: true,
 		quantidade: 10,
 		id: "coqueiro",
@@ -216,10 +242,22 @@ recursos: [
 		nome: "Árvore",
 		descricao: "Uma arvore pequena comum",
 		tipo: "madeira",
+		farm: ["madeira", "folha"],
 		ferramenta: true,
 		quantidade: 15,
 		id: "arvore",
 		bioma: ["praia","planicie","montanha"],
 		localidade: "parede"
+	},{
+		nome: "Planta",
+		descricao: "Uma planta no chão",
+		tipo: "planta",
+		farm: ["fibra"],
+		raro: ["narcoberry","mejoberry"],
+		ferramenta: false,
+		quantidade: 20,
+		id: "planta",
+		bioma: ["praia","planicie","montanha"],
+		localidade: "chao"
 	}
 ];

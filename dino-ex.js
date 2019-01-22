@@ -182,7 +182,7 @@ exports.spawnar = function(dinodb){
 	});
 };
 
-exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
+exports.coletar = function(dinodb, usuario, recurso, tool, mensagens, message){
 	console.log(usuario.username, "tentando coletar recurso com id "+recurso);
 
 	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
@@ -200,15 +200,47 @@ exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
 				mensagens.enviarGenerico(message, "Opa", "O id de recurso não está presente na sua região");
 			} else {
 				if(recurso.tool){
-					mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta correta");
-					return;
+					if(tool){
+						dinodb.collection('pertences').findOne({id: tool},function(err, tool){
+							if(err) throw err;
+							if(!tool){
+								mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta "+tool);
+								return;
+							}else{
+								materiais = recurso.farm;
+								itens = [];
+								for(m in materiais){
+									itens.push({
+										quantidade: ~~(recurso.quantidade/tool.farmqtd[materiais[m]]*100),
+										id: materiais[m],
+										dono: user.did,
+										nome: recurso.material[m]
+									});
+								}
+							}
+						});
+					}else{
+						dinodb.collection('pertences').find({id: tool}).toArray(function(err, tool){
+							if(err) throw err;
+							if(tool.length == 0){
+								mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta para coletar isso");
+								return;
+							}else{
+								mensagens.enviarFerramentas(message);
+							}
+						});
+						return;
+					}
 				}else{
-					item = {
-						quantidade: recurso.quantidade,
-						id: recurso.tipo,
-						dono: user.did,
-						nome: recurso.material
-					};
+					itens = [];
+					for(m in recurso.farm){
+						itens.push({
+							quantidade: recurso.quantidade,
+							id: recurso.farm[m],
+							dono: user.did,
+							nome: recurso.material[m]
+						});
+					}
 				}
 			// console.log(server);
 				dinodb.collection('recursos_regiao').deleteOne(query, function(err, obj){
@@ -217,24 +249,25 @@ exports.coletar = function(dinodb, usuario, recurso, mensagens, message){
 					}else{
 						console.log("não removeu recurso do banco");
 					}
+					for(i in itens){
+						dinodb.collection('pertences').countDocuments({id: itens[i].id, dono: user.did}, function(err, qtd){
+							if(qtd == 0){
+								dinodb.collection('pertences').insertOne(itens[i], function(err, res){
 
-					dinodb.collection('pertences').countDocuments({id: recurso.tipo, dono: user.did}, function(err, qtd){
-						if(qtd == 0){
-							dinodb.collection('pertences').insertOne(item, function(err, res){
+								});
+							}else{
+								q = {id: itens[i].id, dono: user.did};
+								novo = {$inc: {quantidade: itens[i].quantidade}};
+								dinodb.collection('pertences').updateOne(q,novo, function(err, res){
 
-							});
-						}else{
-							q = {id: recurso.tipo, dono: user.did};
-							novo = {$inc: {quantidade: recurso.quantidade}};
-							dinodb.collection('pertences').updateOne(q,novo, function(err, res){
-
-							});
-						}
-						user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
-						dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
-							mensagens.enviarColeta(message, user, recurso);
+								});
+							}
 						});
-					});
+					}
+				});
+				user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
+				dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
+					mensagens.enviarColeta(message, user, itens, ~~(recurso.quantidade/5));
 				});
 			}
 		});

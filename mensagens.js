@@ -139,7 +139,14 @@ exports.enviarChecagem = function(message, user, server, regiao, players, selvag
     });
 };
 
-exports.enviarColeta = function(message, user, recurso){
+exports.enviarColeta = function(message, user, itens, exp){
+    console.log(itens);
+    coletas = [];
+    for(i in itens){
+        coletas.push(itens[i].quantidade+" "+itens[i].tipo+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""));
+    }
+    if(coletas.length>1) last = " e "+coletas.pop();
+    else last = "";
 	message.channel.send({
         embed: {
             title: '**Dino Ex ainda em desenvolvimento**',
@@ -149,8 +156,8 @@ exports.enviarColeta = function(message, user, recurso){
 		        name: ":muscle: "+user.nome,
 		        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
 		      },{
-            	name: "Você coletou "+recurso.quantidade+" "+recurso.tipo+(recurso.quantidade>1&&recurso.tipo.substr(-1).match(/(a|e|o)/)?"s":""),
-            	value: "E recebeu "+~~(recurso.quantidade/5)+" de xp"
+            	name: "Você coletou "+coletas.join(', ')+last,
+            	value: "E recebeu "+exp+" de xp"
             }]
         },
         content: ''
