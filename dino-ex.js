@@ -251,6 +251,24 @@ exports.perfil = function(dinodb, usuario, mensagens, message){
 	});
 };
 
+exports.atribuir = function(dinodb, usuario, qtd, atributo, mensagens, message){
+	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+		dinodb.collection('servers').findOne({sid: user.server}, function(err, server){
+			if(qtd>user.pontos){
+				mensagens.enviarGenerico(message, "Opa","Você só possui "+user.pontos);
+			}else{
+				up = (atributo=='velocidade'||atributo=='dano'?2:10);
+				user[atributo]+=up;
+				user.pontos-=qtd;
+				query = {did: usuario.id};
+				dinodb.collection('users').updateOne(query,{$set: user},function(err, result){
+					mensagens.enviarGenerico(message, "Parabéns", "Você aumentou "+up+" de "+atributo);
+				});
+			}
+		});
+	});
+};
+
 exports.aumentarExp = function(dinodb, user, exp, mensagens, message){
 	user.exp += exp;
 	if(user.exp>=user.next){
