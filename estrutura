@@ -140,7 +140,6 @@ itens: [
 			couro: 10,
 			carne: 30
 		},
-		qualidade: 100,
 		id: "picareta"
 	},{
 		nome: "Lança",
@@ -158,7 +157,6 @@ itens: [
 			couro: 10,
 			carne: 30
 		},
-		qualidade: 100,
 		id: "lanca"
 	},{
 		nome: "Madeira",

@@ -1,7 +1,7 @@
 exports.enviarIntro = function(message){
 	message.channel.send({
         embed: {
-            title: '**Dino Ex ainda em desenvolvimento**',
+            title: '**Dino Ex**',
             color: 11534368,
             // description: '',
             fields: [{
@@ -24,7 +24,7 @@ exports.enviarIntro = function(message){
 exports.enviarRegistrado = function(message){
 	message.channel.send({
         embed: {
-            title: '**Dino Ex ainda em desenvolvimento**',
+            title: '**Dino Ex**',
             color: 11534368,
             // description: '',
             fields: [{
@@ -41,7 +41,7 @@ exports.enviarRegistrado = function(message){
 exports.enviarGenerico = function(message, title, texto){
 	message.channel.send({
         embed: {
-            title: '**Dino Ex ainda em desenvolvimento**',
+            title: '**Dino Ex**',
             color: 11534368,
             // description: '',
             fields: [{
@@ -57,7 +57,7 @@ exports.enviarGenerico = function(message, title, texto){
 exports.enviarChecagem = function(message, user, server, regiao, players, selvagens, recursos){
 	message.channel.send({
         embed: {
-            title: '**Dino Ex ainda em desenvolvimento**',
+            title: '**Dino Ex**',
             color: 11534368,
             // description: '',
             fields: [{
@@ -140,16 +140,16 @@ exports.enviarChecagem = function(message, user, server, regiao, players, selvag
 };
 
 exports.enviarColeta = function(message, user, itens, exp){
-    console.log(itens);
+    // console.log(itens);
     coletas = [];
     for(i in itens){
-        coletas.push(itens[i].quantidade+" "+itens[i].tipo+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""));
+        coletas.push(itens[i].quantidade+" "+itens[i].nome+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""));
     }
     if(coletas.length>1) last = " e "+coletas.pop();
     else last = "";
 	message.channel.send({
         embed: {
-            title: '**Dino Ex ainda em desenvolvimento**',
+            title: '**Dino Ex**',
             color: 11534368,
             // description: '',
             fields: [{
@@ -158,6 +158,87 @@ exports.enviarColeta = function(message, user, itens, exp){
 		      },{
             	name: "Você coletou "+coletas.join(', ')+last,
             	value: "E recebeu "+exp+" de xp"
+            }]
+        },
+        content: ''
+    });
+};
+
+exports.enviarFerramentas = function(message, tools, recurso){
+    fields = [];
+
+    for(t in tools){
+        fields.push({
+            name: tools[t].nome,
+            value: "id: "+tools[t].id,
+            inline: true
+        })
+    }
+
+    message.channel.send({
+        embed: {
+            title: 'Digite: $coletar '+recurso.id+' (id) para coletar esse recurso',
+            color: 11534368,
+            // description: '',
+            fields: fields
+        },
+        content: ''
+    });
+};
+
+exports.enviarInfoCriar = function(message, user, itens, mochila){
+    // console.log(mochila);
+    fields = [];
+    for(i in itens){
+        mats = [];
+        custo = itens[i].custo;
+        first = true;
+        mats.push("id: "+itens[i].id);
+        for(c in custo){
+            mats.push("("+(mochila[c]?mochila[c]:0)+"/"+custo[c]+") "+c);
+        }
+        fields.push({
+            name: itens[i].nome,
+            value: mats.join('\n'),
+            inline: true
+        });
+    }
+
+    message.channel.send({
+        embed: {
+            title: 'Digite: $criar (id) para criar o item que você quer',
+            color: 11534368,
+            // description: '',
+            fields: fields
+        },
+        content: ''
+    });
+};
+
+exports.enviarFaltaCriar = function(message, falta){
+    message.channel.send({
+        embed: {
+            title: '**Dino Ex**',
+            color: 11534368,
+            // description: '',
+            fields: [{
+                name: 'Faltam recursos para criar o item',
+                value: falta.join('\n')
+            }]
+        },
+        content: ''
+    });
+};
+
+exports.enviarCriado = function(message, item, exp){
+    message.channel.send({
+        embed: {
+            title: '**Dino Ex**',
+            color: 11534368,
+            // description: '',
+            fields: [{
+                name: 'Parabéns',
+                value: 'Você criou o item '+item.nome+" e ganhou "+exp+" de xp"
             }]
         },
         content: ''
@@ -223,7 +304,7 @@ exports.enviarPerfil = function(message, user, server, itens){
 
     for(i in itens){
     	fields.push({
-    		name: itens[i].quantidade+"x "+itens[i].nome+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""),
+    		name: (itens[i].tipo == 'recurso'?itens[i].quantidade+"x ":"")+itens[i].nome+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""),
     		value: "** **"
     	});
     }

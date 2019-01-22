@@ -177,7 +177,7 @@ exports.spawnar = function(dinodb){
 				});
 			}
 		});
-
+	}).then(function(){
 		console.log("spawn finalizado", '[' + Date.now() + ']');
 	});
 };
@@ -199,34 +199,37 @@ exports.coletar = function(dinodb, usuario, recurso, tool, mensagens, message){
 			if(recurso == null){
 				mensagens.enviarGenerico(message, "Opa", "O id de recurso não está presente na sua região");
 			} else {
-				if(recurso.tool){
+				if(recurso.ferramenta){
+					itens = [];	
 					if(tool){
-						dinodb.collection('pertences').findOne({id: tool},function(err, tool){
+						dinodb.collection('pertences').findOne({id: tool},function(err, ferramenta){
 							if(err) throw err;
-							if(!tool){
+							if(!ferramenta){
 								mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta "+tool);
-								return;
+								return
 							}else{
 								materiais = recurso.farm;
-								itens = [];
 								for(m in materiais){
 									itens.push({
-										quantidade: ~~(recurso.quantidade/tool.farmqtd[materiais[m]]*100),
+										quantidade: ~~(recurso.quantidade*ferramenta.farmqtd[materiais[m]]/100),
 										id: materiais[m],
 										dono: user.did,
-										nome: recurso.material[m]
+										nome: recurso.material[m],
+										tipo: "recurso"
 									});
 								}
+								// console.log(itens);
+								exports.finalizarColeta(dinodb, user, recurso, itens, mensagens, message);
 							}
 						});
 					}else{
-						dinodb.collection('pertences').find({id: tool}).toArray(function(err, tool){
+						dinodb.collection('pertences').find({farm: recurso.tipo}).toArray(function(err, tool){
 							if(err) throw err;
 							if(tool.length == 0){
 								mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta para coletar isso");
 								return;
 							}else{
-								mensagens.enviarFerramentas(message);
+								mensagens.enviarFerramentas(message, tool, recurso);
 							}
 						});
 						return;
@@ -238,39 +241,57 @@ exports.coletar = function(dinodb, usuario, recurso, tool, mensagens, message){
 							quantidade: recurso.quantidade,
 							id: recurso.farm[m],
 							dono: user.did,
-							nome: recurso.material[m]
+							nome: recurso.material[m],
+							tipo: "recurso"
 						});
 					}
+
+					exports.finalizarColeta(dinodb, user, recurso, itens, mensagens, message);
 				}
-			// console.log(server);
-				dinodb.collection('recursos_regiao').deleteOne(query, function(err, obj){
-					if(obj.result.n>0){
-						console.log(user.nome, "removeu "+recurso.nome+" do "+recurso.rid);	
-					}else{
-						console.log("não removeu recurso do banco");
-					}
-					for(i in itens){
-						dinodb.collection('pertences').countDocuments({id: itens[i].id, dono: user.did}, function(err, qtd){
-							if(qtd == 0){
-								dinodb.collection('pertences').insertOne(itens[i], function(err, res){
-
-								});
-							}else{
-								q = {id: itens[i].id, dono: user.did};
-								novo = {$inc: {quantidade: itens[i].quantidade}};
-								dinodb.collection('pertences').updateOne(q,novo, function(err, res){
-
-								});
-							}
-						});
-					}
-				});
-				user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
-				dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
-					mensagens.enviarColeta(message, user, itens, ~~(recurso.quantidade/5));
-				});
 			}
 		});
+	});
+};
+
+exports.finalizarColeta = function(dinodb, user, recurso, itens, mensagens, message){
+	query = {sid: 0, rid: user.map, id: recurso.id};
+	dinodb.collection('recursos_regiao').deleteOne(query, function(err, obj){
+		if(obj.result.n>0){
+			console.log(user.nome, "removeu "+recurso.nome+" do "+recurso.rid);	
+		}else{
+			console.log("não removeu recurso do banco");
+		}
+		// console.log(itens);
+		for(i in itens){
+			exports.adicionarRecurso(dinodb, JSON.parse(JSON.stringify(itens)));
+		}
+	});
+	user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
+	dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
+		mensagens.enviarColeta(message, user, itens, ~~(recurso.quantidade/5));
+	});
+};
+
+exports.adicionarRecurso = function(dinodb, itens){
+	item = itens.shift();
+	dinodb.collection('pertences').countDocuments({id: item.id, dono: item.dono}, function(err, qtd){
+		if(qtd == 0){
+			dinodb.collection('pertences').insertOne(item, function(err, res){
+				if(itens.length>0){
+					exports.adicionarRecurso(dinodb, itens);
+				}
+			});
+		}else{
+			q = {id: item.id, dono: item.dono};
+			novo = {$inc: {quantidade: item.quantidade}};
+			dinodb.collection('pertences').updateOne(q, novo, function(err, res){
+				if(err) throw err;
+
+				if(itens.length>0){
+					exports.adicionarRecurso(dinodb, itens);
+				}
+			});
+		}
 	});
 };
 
@@ -298,6 +319,90 @@ exports.atribuir = function(dinodb, usuario, qtd, atributo, mensagens, message){
 					mensagens.enviarGenerico(message, "Parabéns", "Você aumentou "+up+" de "+atributo);
 				});
 			}
+		});
+	});
+};
+
+exports.infoCriar = function(dinodb, user, mensagens, message){
+	dinodb.collection('users').findOne({did: user.id}, function(err, user){
+		if(!user) return;
+		dinodb.collection('itens').find({level: {$lte: user.level}}).toArray(function(err, itens){
+			mochila = [];
+			dinodb.collection('pertences').find({dono: user.did}).toArray(function(err, pertences){
+				console.log(pertences);
+				for(p in pertences){
+					mochila[pertences[p].id] = pertences[p].quantidade;				
+				}
+				mensagens.enviarInfoCriar(message, user, itens, mochila);
+			});
+		});
+	});
+};
+
+exports.criar = function(dinodb, usuario, item, mensagens, message){
+	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+		if(!user) return;
+		dinodb.collection('itens').findOne({id: item}, function(err, item){
+			dinodb.collection('pertences').countDocuments({id: item.id, dono: user.did}, function(err, qtd){
+				if(item.tipo == 'ferramenta' && qtd>0){
+					mensagens.enviarGenerico(message, "Opa", "Você já possui essa ferramenta");
+				}else{
+					mochila = [];
+					dinodb.collection('pertences').find({dono: user.did}).toArray(function(err, pertences){
+						// console.log(pertences);
+						for(p in pertences){
+							mochila[pertences[p].id] = pertences[p].quantidade;				
+						}
+				        custo = item.custo;
+				        pode = true;
+				        falta = [];
+				        for(c in custo){
+				        	if(!mochila[c]) mochila[c] = 0;
+				            if(mochila[c]<custo[c]){
+				            	pode = false;
+				            	falta.push(custo[c]-mochila[c]+" "+c);
+				            }
+				        }
+				        if(pode){
+				        	for(c in custo){
+				            	mochila[c]-=custo[c];
+					        	query = {id: c, dono: user.did};
+					        	novo = {$set: {quantidade: mochila[c]}};
+					        	console.log(query, novo);
+					        	dinodb.collection('pertences').updateOne(query, novo, function(err, res){
+					        		if(err) throw err;
+					        	});
+					        }	
+					        if(item.tipo == 'recurso'){
+
+						    }else if(item.tipo == 'ferramenta' || item.tipo == 'arma'){
+						        novo = {
+						        	nome: item.nome,
+						        	tipo: item.tipo,
+						        	dano: item.dano,
+						        	qualidade: 100,
+						        	durabilidade: 40,
+						        	farm: item.farm,
+						        	farmqtd: item.farmqtd,
+						        	id: item.id,
+						        	dono: user.did
+						        };
+
+						        dinodb.collection('pertences').insertOne(novo, function(err, res){
+						        	if(err) throw err;
+
+						        	user = exports.aumentarExp(dinodb, user, item.exp, mensagens, message);
+									dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
+						        		mensagens.enviarCriado(message, item, item.exp);
+									});
+						        });
+						    }
+				        }else{
+				        	mensagens.enviarFaltaCriar(message, falta);
+				        }
+					});
+				}
+			});
 		});
 	});
 };

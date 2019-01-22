@@ -60,7 +60,7 @@ exports.iniciarBot = function(client, auth, dinoex, dinodb, mensagens, cronjob){
 	            	break;
 
 	            case 'atribuir':
-	            	if(!args[0]){
+	            	if(!args[0] || !args[1]){
 	            		mensagens.enviarGenerico(message, "Atribuição de status","Para atribuir um status, digite $atribuir (quantidade) (status), escolhendo entre dano, vida, energia, fome, velocidade");
 	            	}
 	            	switch(args[1]){
@@ -76,6 +76,12 @@ exports.iniciarBot = function(client, auth, dinoex, dinodb, mensagens, cronjob){
 	            			break;
 	            	}
 
+	            case 'criar':
+	            	if(!args[0]){
+	            		dinoex.infoCriar(dinodb, usuario, mensagens, message);
+	            	}else{
+	            		dinoex.criar(dinodb, usuario, args[0], mensagens, message);
+	            	}
 	            	break;
 	        }
 	    }
