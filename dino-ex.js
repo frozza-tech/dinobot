@@ -208,18 +208,26 @@ exports.coletar = function(dinodb, usuario, recurso, tool, mensagens, message){
 								mensagens.enviarGenerico(message, "Opa", "Você não tem a ferramenta "+tool);
 								return
 							}else{
-								materiais = recurso.farm;
-								for(m in materiais){
-									itens.push({
-										quantidade: ~~(recurso.quantidade*ferramenta.farmqtd[materiais[m]]/100),
-										id: materiais[m],
-										dono: user.did,
-										nome: recurso.material[m],
-										tipo: "recurso"
+								if(ferramenta.durabilidade<=0){
+									mensagens.enviarGenerico(message, "Opa", "Sua "+ferramenta.nome+" está quebrada");
+								}else{
+									materiais = recurso.farm;
+									for(m in materiais){
+										itens.push({
+											quantidade: ~~(recurso.quantidade*ferramenta.farmqtd[materiais[m]]/100),
+											id: materiais[m],
+											dono: user.did,
+											nome: recurso.material[m],
+											tipo: "recurso"
+										});
+									}
+									ferramenta.durabilidade-=0.5;
+									dinodb.collection('pertences').updateOne({id: tool},{$set: ferramenta}, function(err, res){
+
 									});
+									// console.log(itens);
+									exports.finalizarColeta(dinodb, user, recurso, itens, mensagens, message, ferramenta);
 								}
-								// console.log(itens);
-								exports.finalizarColeta(dinodb, user, recurso, itens, mensagens, message);
 							}
 						});
 					}else{
@@ -253,7 +261,7 @@ exports.coletar = function(dinodb, usuario, recurso, tool, mensagens, message){
 	});
 };
 
-exports.finalizarColeta = function(dinodb, user, recurso, itens, mensagens, message){
+exports.finalizarColeta = function(dinodb, user, recurso, itens, mensagens, message, ferramenta){
 	query = {sid: 0, rid: user.map, id: recurso.id};
 	dinodb.collection('recursos_regiao').deleteOne(query, function(err, obj){
 		if(obj.result.n>0){
@@ -268,7 +276,7 @@ exports.finalizarColeta = function(dinodb, user, recurso, itens, mensagens, mess
 	});
 	user = exports.aumentarExp(dinodb, user, ~~(recurso.quantidade/5), mensagens, message);
 	dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
-		mensagens.enviarColeta(message, user, itens, ~~(recurso.quantidade/5));
+		mensagens.enviarColeta(message, user, itens, ~~(recurso.quantidade/5), ferramenta);
 	});
 };
 
@@ -339,6 +347,30 @@ exports.infoCriar = function(dinodb, user, mensagens, message){
 	});
 };
 
+exports.infoConsertar = function(dinodb, user, mensagens, message){
+	dinodb.collection('users').findOne({did: user.id}, function(err, user){
+		if(!user) return;
+		query = {
+			dono: user.did, 
+			$where: "this.durabilidade < this.durabilidademax",
+			tipo: {
+				$in: ["ferramenta", "arma"]
+			}
+		};
+		
+		dinodb.collection('pertences').find(query).toArray(function(err, itens){
+			// console.log(itens);
+			mochila = [];
+			dinodb.collection('pertences').find({dono: user.did}).toArray(function(err, pertences){
+				for(p in pertences){
+					mochila[pertences[p].id] = pertences[p].quantidade;				
+				}
+				mensagens.enviarInfoConsertar(message, user, itens, mochila);
+			});
+		});
+	});
+};
+
 exports.criar = function(dinodb, usuario, item, mensagens, message){
 	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
 		if(!user) return;
@@ -380,10 +412,13 @@ exports.criar = function(dinodb, usuario, item, mensagens, message){
 						        	nome: item.nome,
 						        	tipo: item.tipo,
 						        	dano: item.dano,
+						        	custo: item.custo,
 						        	qualidade: 100,
 						        	durabilidade: 40,
 						        	farm: item.farm,
 						        	farmqtd: item.farmqtd,
+						        	durabilidade: item.durabilidade,
+						        	durabilidademax: item.durabilidade,
 						        	id: item.id,
 						        	dono: user.did
 						        };
@@ -405,6 +440,10 @@ exports.criar = function(dinodb, usuario, item, mensagens, message){
 			});
 		});
 	});
+};
+
+exports.consertar = function(dinodb, usuario, item, mensagens, message){
+
 };
 
 exports.aumentarExp = function(dinodb, user, exp, mensagens, message){

@@ -139,7 +139,7 @@ exports.enviarChecagem = function(message, user, server, regiao, players, selvag
     });
 };
 
-exports.enviarColeta = function(message, user, itens, exp){
+exports.enviarColeta = function(message, user, itens, exp, ferramenta){
     // console.log(itens);
     coletas = [];
     for(i in itens){
@@ -147,18 +147,25 @@ exports.enviarColeta = function(message, user, itens, exp){
     }
     if(coletas.length>1) last = " e "+coletas.pop();
     else last = "";
+    fields = [{
+        name: ":muscle: "+user.nome,
+        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
+      },{
+        name: "Você coletou "+coletas.join(', ')+last,
+        value: "E recebeu "+exp+" de xp"
+    }];
+    if(ferramenta.durabilidade<=0){
+        fields.push({
+            name: "Sua "+ferramenta.nome+" quebrou",
+            value: "** **"
+        })
+    }
 	message.channel.send({
         embed: {
             title: '**Dino Ex**',
             color: 11534368,
             // description: '',
-            fields: [{
-		        name: ":muscle: "+user.nome,
-		        value: ":large_orange_diamond: Nível "+user.level+" ("+user.exp+"/"+user.next+")"
-		      },{
-            	name: "Você coletou "+coletas.join(', ')+last,
-            	value: "E recebeu "+exp+" de xp"
-            }]
+            fields: fields
         },
         content: ''
     });
@@ -207,6 +214,37 @@ exports.enviarInfoCriar = function(message, user, itens, mochila){
     message.channel.send({
         embed: {
             title: 'Digite: $criar (id) para criar o item que você quer',
+            color: 11534368,
+            // description: '',
+            fields: fields
+        },
+        content: ''
+    });
+};
+
+exports.enviarInfoConsertar = function(message, user, itens, mochila){
+    // console.log(itens);
+    fields = [];
+    for(i in itens){
+        mats = [];
+        custo = itens[i].custo;
+        first = true;
+        mats.push("id: "+itens[i].id);
+        dp = (itens[i].durabilidademax-itens[i].durabilidade)/itens[i].durabilidademax;
+        console.log(dp, custo);
+        for(c in custo){
+            mats.push("("+(mochila[c]?mochila[c]:0)+"/"+(~(custo[c]*dp)*-1)+") "+c);
+        }
+        fields.push({
+            name: itens[i].nome,
+            value: mats.join('\n'),
+            inline: true
+        });
+    }
+
+    message.channel.send({
+        embed: {
+            title: 'Digite: $consertar (id) para criar o item que você quer',
             color: 11534368,
             // description: '',
             fields: fields
@@ -298,15 +336,64 @@ exports.enviarPerfil = function(message, user, server, itens){
     fields = [];
 
     fields.push({
-    	name: "Inventário: ",
+    	name: "**Inventário**",
     	value: "_______________"
     });
 
-    for(i in itens){
-    	fields.push({
-    		name: (itens[i].tipo == 'recurso'?itens[i].quantidade+"x ":"")+itens[i].nome+(itens[i].quantidade>1&&itens[i].nome.substr(-1).match(/(a|e|o)/)?"s":""),
-    		value: "** **"
-    	});
+    fields.push({
+        name: "Recursos",
+        value: "_______________",
+        inline: true
+    });
+
+    fields.push({
+        name: "Armas/Ferramentas",
+        value: "_______________",
+        inline: true
+    });
+
+    fields.push({
+        name: "** **",
+        value: "** **",
+        inline: true
+    });
+
+    recursos = itens.filter(function(v){if(v.tipo=='recurso') return true});
+    ferramentas = itens.filter(function(v){if(v.tipo=='ferramenta' || v.tipo == 'arma') return true});
+    total = (recursos.length>ferramentas.length?recursos.length:ferramentas.length);
+
+    for(i = 0; i<total; i++){
+        if(recursos[i]){
+        	fields.push({
+        		name: recursos[i].quantidade+"x "+recursos[i].nome+(recursos[i].quantidade>1&&recursos[i].nome.substr(-1).match(/(a|e|o)/)?"s":""),
+                value: "** **",
+                inline: true
+            });
+        }else{
+            fields.push({
+                name: "** **",
+                value: "** **",
+                inline: true
+            });
+        }
+        if(ferramentas[i]){
+            fields.push({
+                name: "("+ferramentas[i].durabilidade+"/"+ferramentas[i].durabilidademax+") "+ferramentas[i].nome,
+                value: "** **",
+                inline: true
+            });
+        }else{
+            fields.push({
+                name: "** **",
+                value: "** **",
+                inline: true
+            });
+        }
+        fields.push({
+            name: "** **",
+            value: "** **",
+            inline: true
+        });
     }
 
     if(itens.length == 0){

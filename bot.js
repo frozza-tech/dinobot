@@ -76,11 +76,22 @@ exports.iniciarBot = function(client, auth, dinoex, dinodb, mensagens, cronjob){
 	            			break;
 	            	}
 
+	            	break;
+
 	            case 'criar':
 	            	if(!args[0]){
 	            		dinoex.infoCriar(dinodb, usuario, mensagens, message);
 	            	}else{
 	            		dinoex.criar(dinodb, usuario, args[0], mensagens, message);
+	            	}
+	            	break;
+
+	            case 'consertar':
+	            	// ~~(mat*duratual/durmax)
+	            	if(!args[0]){
+	            		dinoex.infoConsertar(dinodb, usuario, mensagens, message);
+	            	}else{
+	            		dinoex.consertar(dinodb, usuario, args[0], mensagens, message);
 	            	}
 	            	break;
 	        }
