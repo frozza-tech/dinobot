@@ -268,6 +268,21 @@ exports.enviarFaltaCriar = function(message, falta){
     });
 };
 
+exports.enviarFaltaConsertar = function(message, falta){
+    message.channel.send({
+        embed: {
+            title: '**Dino Ex**',
+            color: 11534368,
+            // description: '',
+            fields: [{
+                name: 'Faltam recursos para consertar o item',
+                value: falta.join('\n')
+            }]
+        },
+        content: ''
+    });
+};
+
 exports.enviarCriado = function(message, item, exp){
     message.channel.send({
         embed: {
@@ -277,6 +292,21 @@ exports.enviarCriado = function(message, item, exp){
             fields: [{
                 name: 'Parabéns',
                 value: 'Você criou o item '+item.nome+" e ganhou "+exp+" de xp"
+            }]
+        },
+        content: ''
+    });
+};
+
+exports.enviarConsertado = function(message, item, exp){
+    message.channel.send({
+        embed: {
+            title: '**Dino Ex**',
+            color: 11534368,
+            // description: '',
+            fields: [{
+                name: 'Parabéns',
+                value: 'Você consertou o item '+item.nome+" e ganhou "+exp+" de xp"
             }]
         },
         content: ''

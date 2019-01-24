@@ -419,6 +419,7 @@ exports.criar = function(dinodb, usuario, item, mensagens, message){
 						        	farmqtd: item.farmqtd,
 						        	durabilidade: item.durabilidade,
 						        	durabilidademax: item.durabilidade,
+						        	exp: item.exp,
 						        	id: item.id,
 						        	dono: user.did
 						        };
@@ -443,10 +444,61 @@ exports.criar = function(dinodb, usuario, item, mensagens, message){
 };
 
 exports.consertar = function(dinodb, usuario, item, mensagens, message){
+	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
+		dinodb.collection('pertences').findOne({id: item, dono: user.did}, function(err, ferramenta){
+			if(!ferramenta){
+				mensagens.enviarGenerico(message, "Opa", "Você não tem essa ferramenta");
+			}else{
+				mochila = [];
+				dinodb.collection('pertences').find({dono: user.did}).toArray(function(err, pertences){
+					// console.log(pertences);
+					for(p in pertences){
+						mochila[pertences[p].id] = pertences[p].quantidade;				
+					}
+			        custo = ferramenta.custo;
+			        pode = true;
+			        falta = [];
+			        dp = (ferramenta.durabilidademax-ferramenta.durabilidade)/ferramenta.durabilidademax;
+			        for(c in custo){
+			        	custo[c] = (~(custo[c]*dp)*-1);
+			        	if(!mochila[c]) mochila[c] = 0;
+			            if(mochila[c]<custo[c]){
+			            	pode = false;
+			            	falta.push(custo[c]-mochila[c]+" "+c);
+			            }
+			        }
+			        if(pode){
+			        	for(c in custo){
+			            	mochila[c]-=custo[c];
+				        	query = {id: c, dono: user.did};
+				        	novo = {$set: {quantidade: mochila[c]}};
+				        	console.log(query, novo);
+				        	dinodb.collection('pertences').updateOne(query, novo, function(err, res){
+				        		if(err) throw err;
+				        	});
+				        }	
+				        query = {dono: user.did, id: item};
+				        novo = {$set: {durabilidade: ferramenta.durabilidademax}};
+				        dinodb.collection('pertences').updateOne(query, novo, function(err, res){
+				        	if(err) throw err;
 
+				        	exp = ~~((ferramenta.durabilidademax-ferramenta.durabilidade)/10)*ferramenta.exp;
+				        	user = exports.aumentarExp(dinodb, user, exp, mensagens, message);
+							dinodb.collection('users').updateOne({did: user.did}, {$set: user}, function(err, res){
+				        		mensagens.enviarConsertado(message, ferramenta, exp);
+							});
+				        });
+			        }else{
+			        	mensagens.enviarFaltaConsertar(message, falta);
+			        }
+				});
+			}
+		});
+	});
 };
 
 exports.aumentarExp = function(dinodb, user, exp, mensagens, message){
+	if(!exp) return user;
 	user.exp += exp;
 	if(user.exp>=user.next){
 		user.exp-=user.next;
