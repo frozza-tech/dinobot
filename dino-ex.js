@@ -23,7 +23,7 @@ exports.iniciar = function(dinodb, mensagens, message){
 			mensagens.enviarGenerico(message,"Você já começou","Use o comando *checar* para ver seu estado atual");
 		}
 	});
-}
+};
 
 exports.registrar = function(dinodb, usuario, mensagens, message){
 	dinodb.collection('users').find({did: usuario.id}).toArray(function(err, result){
@@ -51,7 +51,7 @@ exports.registrar = function(dinodb, usuario, mensagens, message){
 			mensagens.enviarGenerico(message,"Calma aí","Você já está registrado");
 		}
 	});
-}
+};
 
 exports.checar = function(dinodb, usuario, mensagens, message){
 	dinodb.collection('users').findOne({did: usuario.id}, function(err, user){
@@ -79,7 +79,7 @@ exports.checar = function(dinodb, usuario, mensagens, message){
 			});
 		});
 	});
-}
+};
 
 exports.spawnar = function(dinodb){
 	dinodb.collection('regioes').find({sid: 0}).forEach(function(regiao){
